@@ -28,10 +28,12 @@ from selenium.webdriver.common.by import By
 USER = getpass.getuser()
 
 # Declare global variables.
-ELECTRONICS = 'https://www.facebook.com/marketplace/category/electronics?deliveryMethod=local_pick_up&exact=false'
-APPLIANCES = 'https://www.facebook.com/marketplace/category/appliances?deliveryMethod=local_pick_up&exact=false'
-FURNITURE = 'https://www.facebook.com/marketplace/category/furniture?deliveryMethod=local_pick_up&exact=false'
-LOCATIONS = ['pullman', 'colfax', 'moscow']
+ELECTRONICS = 'https://www.facebook.com/marketplace/category/electronics'
+APPLIANCES = 'https://www.facebook.com/marketplace/category/appliances'
+FURNITURE = 'https://www.facebook.com/marketplace/category/furniture'
+BASE_URL = 'https://www.facebook.com/marketplace/category/{}'
+CATEGORIES = ['vehicles']
+LOCATIONS = ['san diego', 'tijuana', 'tucson']
 
 # Define a Selenium class to automate the browser.
 class Selenium():
@@ -58,6 +60,7 @@ class Selenium():
         # Try to get the page source.
         try:
             # Load the URL.
+            #import pdb; pdb.set_trace()
             self.browser.get(url)
             
             # Wait for the page to load.
@@ -81,7 +84,7 @@ class Selenium():
         # Catch any exceptions.
         except Exception as e:
             print(str(e))
-            return None
+            return self.browser.page_source
 
     # Define a method to close the browser.
     def close_browser(self):
@@ -101,18 +104,19 @@ class Selenium():
 
         # TODO: Remove these two loops and replace them with a single loop that iterates 3 times. However, the code below works for now and trying to fix it is not a priority.
         for location in LOCATIONS:
-            for category, url in {'Electronics': ELECTRONICS, 'Appliances': APPLIANCES, 'Furniture': FURNITURE}.items():
-                # Keeping the number of iterations below 5 for now to avoid getting blocked by Facebook and also to keep the results from being too far away from Pullman.
-                for i in range (1, 5):
-                    # Scroll down to the bottom of the page to load all items.
-                    self.browser.execute_script(
-                        "window.scrollTo(0, document.body.scrollHeight);")
-                    # Sleep for 5 seconds then scroll again.
-                    time.sleep(1)
-               
+            for cat in CATEGORIES:
+                # # Keeping the number of iterations below 5 for now to avoid getting blocked by Facebook and also to keep the results from being too far away from Pullman.
+                # for i in range (1, 5):
+                #     # Scroll down to the bottom of the page to load all items.
+                #     self.browser.execute_script(
+                #         "window.scrollTo(0, document.body.scrollHeight);")
+                #     # Sleep for 5 seconds then scroll again.
+                #     time.sleep(1)
+                url = BASE_URL.format(cat)
                 # Get the page source using Selenium.
                 page_source = self.get_page_source(url)
-
+                print (page_source)
+                import pdb; pdb.set_trace()
                 # Parse the page source using BeautifulSoup.
                 soup = BeautifulSoup(page_source, 'html.parser')
                 
@@ -188,9 +192,14 @@ class MainWindow(tk.Tk):
         sel = Selenium()
         # Call the scrape_facebook_marketplace method.
         sel.scrape_facebook_marketplace()
+def scrape_marketplace():
+    # Initialize the Selenium class.
+    sel = Selenium()
+    # Call the scrape_facebook_marketplace method.
+    sel.scrape_facebook_marketplace()
 
 if __name__ == "__main__":
-    app = MainWindow()
-    app.mainloop()
-
+    #app = MainWindow()
+    #app.mainloop()
+    scrape_marketplace()
                 
