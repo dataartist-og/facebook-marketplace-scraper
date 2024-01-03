@@ -10,10 +10,19 @@ import re
 import sqlite3
 import time
 import asyncio
-
+import getpass
+import tkinter as tk
+import os
 # Related third-party imports
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver import ChromeOptions as Options
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 # Set username.
 USER = getpass.getuser()
@@ -29,20 +38,20 @@ class Selenium():
     # Define a method to initialize the browser.
     def __init__(self):
         # Close the Chrome instance if it is already running.
-        os.system("taskkill /f /im chrome.exe")
+        #os.system("taskkill /f /im chrome.exe")
         # Set the options for the Chrome browser.
         chrome_options = Options()
-        # chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless")
         # Add a user data directory as an argument for options.
-        chrome_options.add_argument(
-            f"--user-data-dir=C:\\Users\\{USER}\\AppData\\Local\\Google\\Chrome\\User Data")
+        # chrome_options.add_argument(
+        #     f"--user-data-dir=C:\\Users\\{USER}\\AppData\\Local\\Google\\Chrome\\User Data")
         chrome_options.add_argument("profile-directory=Default")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--no-sandbox")
 
         # Initialize the Chrome browser using the ChromeDriverManager.
-        self.browser = webdriver.Chrome(
-            ChromeDriverManager().install(), options=chrome_options)
+        service = Service(ChromeDriverManager().install())
+        self.browser = webdriver.Chrome(service=service, options=chrome_options)
 
     # Define a method to get the page source using Selenium.
     def get_page_source(self, url):
@@ -70,12 +79,8 @@ class Selenium():
             return page_source
 
         # Catch any exceptions.
-        except TimeoutException:
-            print("Timed out waiting for page to load.")
-            return None
-
-        except NoSuchElementException:
-            print("Element not found.")
+        except Exception as e:
+            print(str(e))
             return None
 
     # Define a method to close the browser.
